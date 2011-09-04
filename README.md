@@ -41,6 +41,14 @@ After installed the application will have a program called `desenhar`.
 You can type it with the desired tree in preorder. For instance:
 
 	$ desenhar 5 3 1 4 6
+
+### More than one tree
+
+You can draw more than one tree. They will be converted all in the same
+image since they fit in one page. You should identify each new three with
+a dot at start of it.
+
+	$ desenhar 15 5 3 12 10 6 7 13 16 20 18 23 . 15 6 3 12 10 7 13 16 20 18 23
 	
 ### Integrating
 
