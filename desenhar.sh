@@ -3,6 +3,7 @@
 function usage
 {
     echo "usage: desenhar [-o outputfile] [tree values]"
+    echo "eg: desenhar 5 3 1 4 6"
 }
 
 ext="svg"
@@ -53,26 +54,25 @@ fi
 RM=`which rm`
 
 if [ "$trees" = "" ]; then
-	echo "Sintaxe: desenhar [árvore em pré-ordem]"
-	echo "Exemplo: desenhar 5 3 1 4 6"
+	usage
 	exit 1
 fi
 
 PDFLATEX=`which pdflatex`
 if [ $? -eq 1 ]; then
-	echo "Necessário o pacote texlive"
+	echo "Packaged texlive not installed"
 	exit 1
 fi
 
 PDFCROP=`which pdfcrop`
 if [ $? -eq 1 ]; then
-	echo "Necessário o pacote pdfcrop"
+	echo "Package pdfcrop not installed"
 	exit 1
 fi
 
 PDF2SVG=`which pdf2svg`
 if [ $? -eq 1 ]; then
-	echo "Necessário o pacote pdf2svg"
+	echo "Package pdf2svg not installed"
 	exit 1
 fi
 
@@ -84,26 +84,26 @@ fi
 # will be open on eog. Though, when i use gnome-open Inkscape will
 # be used. So, I'm avoiding open inkscape doing this workaround.
 if [ ! -f $OPEN ]; then
-	echo "Você está usando GNOME? Não encontrei gnome-open"
+	echo "Are you using GNOME? Can't find gnome-open"
 	OPEN=`which xdg-open`
 fi
 
 DRAW=`which drawbstree`
 if [ ! -f $DRAW ]; then
-	echo "Arquivo ./drawtree não encontrado. Compilou?"
+	echo "File drawbstree not found. Did you compile?"
 	exit 1
 fi
 
 $DRAW $trees > $FILE.tex
 if [ $? -ne 0 ]; then
-	echo "Erro ao gerar árvore"
+	echo "Error while trying to create the tree"
 	exit 1
 fi
 
 $PDFLATEX $FILE > /dev/null
 if [ $? -ne 0 ]; then
-	echo "Erro executar latex"
-    $RM $FILE.tex $FILE.aux $FILE.log
+	echo "Error on latex"
+    	$RM $FILE.tex $FILE.aux $FILE.log
 	exit 1
 fi
 
@@ -111,8 +111,8 @@ $RM $FILE.tex $FILE.aux $FILE.log
 
 $PDFCROP $FILE.pdf $FILEPDFCROP > /dev/null
 if [ $? -ne 0 ]; then
-	echo "Erro ao executar pdfcrop"
-    $RM $FILE.pdf
+	echo "Error on pdfcrop"
+    	$RM $FILE.pdf
 	exit 1
 fi
 
@@ -120,8 +120,8 @@ $RM $FILE.pdf
 
 $PDF2SVG $FILEPDFCROP $FINAL
 if [ $? -ne 0 ]; then
-	echo "Erro ao converter para SVG"
-    $RM $FILEPDFCROP
+	echo "Failed to convert image to SVG"
+  	$RM $FILEPDFCROP
 	exit 1
 fi
 
