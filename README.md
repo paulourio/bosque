@@ -45,7 +45,7 @@ You can type it with the desired tree in preorder. For instance:
 ### More than one tree
 
 You can draw more than one tree. They will be converted all in the same
-image since they fit in one page. You should identify each new three with
+image since they fit in one page. You should identify each new tree with
 a dot at start of it.
 
 	$ desenhar 15 5 3 12 10 6 7 13 16 20 18 23 . 15 6 3 12 10 7 13 16 20 18 23
