@@ -37,11 +37,17 @@ Using
 After installed the application will have a program called `desenhar`. 
 You can type it with the desired tree in preorder. For instance,
 if you want to draw this tree:
+
  5
+ 
  /\
+ 
 3  6
+
 /\
+
 1 4
+
 Type this:
 
 	$ desenhar 5 3 1 4 6
