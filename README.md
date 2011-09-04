@@ -8,9 +8,9 @@ Dependencies
 
 If you are using Ubuntu Linux you will need this following packages:
 
-* texlive-full
-* texlive-extra-utils
-* pdf2svg
+* [texlive-full](http://packages.ubuntu.com/search?keywords=texlive-full) -- `apt-get install textlive-full`
+* [texlive-extra-utils](http://packages.ubuntu.com/search?keywords=texlive-extra-utils) -- `apt-get install texlive-extra-utils`
+* [pdf2svg](http://packages.ubuntu.com/search?keywords=pdf2svg) -- `apt-get install pdf2svg`
 
 Otherwise you should have latex base `texlive-base` and the `tikzpicture` package installed and `pdf2svg`.
 
@@ -18,10 +18,15 @@ Installing
 ----------
 
 In order to install you will need to compile the tree generator. Go to the source directory.
+
 	$ cd drawbstree
+	
 Type `make` to compile the program.
+
 	$ make
+	
 Type `make install` as root user to install the application.
+
 	$ sudo make install
 	
 Using
@@ -32,9 +37,11 @@ Using
 After installed the application will have a program called `desenhar`. 
 You can type it with the desired tree in preorder. For instance,
 if you want to draw this tree:
-			5
-	3				6
-1		4
+ 5
+ /\
+3  6
+/\
+1 4
 Type this:
 
 	$ desenhar 5 3 1 4 6
