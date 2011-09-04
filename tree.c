@@ -248,15 +248,13 @@ static void tree_latex_walk(void *ptree, int first)
 /* Walk the tree in three orders */
 void tree_to_latex(void *ptree)
 {
-	printf("\\documentclass[a4paper,landscape]{scrartcl}\n");
-	printf("\\usepackage{fancybox}\n");
-	printf("\\usepackage{tikz}\n");
-	printf("\\thispagestyle{empty}\n");
-	printf("\\begin{document}\n");
-	printf("\\begin{tikzpicture}[level/.style={sibling distance=42mm/#1}]\n");
+	printf("\\centering\n");
+	printf("\\begin{tikzpicture}");
+	
+	printf("[level/.style={sibling distance=42mm/#1}]\n");
 	printf("\\tikzstyle{every node}=[circle,draw]\n");
 	tree_latex_walk(ptree, 1);
-	printf(";\\end{tikzpicture}\n\\end{document}\n");
+	printf(";\\end{tikzpicture}\n");
 }
 
 

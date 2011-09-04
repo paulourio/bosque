@@ -37,7 +37,13 @@ if [ $? -eq 1 ]; then
 	exit 1
 fi
 
-OPEN=`which gnome-open`
+OPEN=`which eog`
+if [ ! -f $OPEN ]; then
+	OPEN=`which gnome-open`
+fi
+# For some obscure reason, when I open a SVG file in nautilus it
+# will be open on eog. Though, when i use gnome-open Inkscape will
+# be used. So, I'm avoiding open inkscape doing this workaround.
 if [ ! -f $OPEN ]; then
 	echo "Você está usando GNOME? Não encontrei gnome-open"
 	OPEN=`which xdg-open`
@@ -77,5 +83,4 @@ $OPEN $FINAL
 echo "Arquivo: $FINAL"
 
 cd ..
-#evince $FINAL.pdf 
 #rm $FINAL

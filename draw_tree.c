@@ -10,22 +10,44 @@
 #include <stdlib.h>
 #include "tree.h"
 
+static void header(void)
+{
+	printf("\\documentclass[a4paper,landscape]{scrartcl}\n");
+	printf("\\usepackage{fancybox}\n");
+	printf("\\usepackage{tikz}\n");
+	printf("\\thispagestyle{empty}\n");
+	printf("\\begin{document}\n");
+}
+
+static void end(void)
+{
+	printf("\\end{document}\n");
+}
+
 int main(int argc, char *argv[])
 {
 	void	*arvore;
 
 	argv++;	
-
+	header();
 	arvore = tree_new();
 	while (argc--) {
 		if (argc == 0)
 			break;
 		int i;
+		if (*argv[0] == '.') {
+			tree_to_latex(arvore);
+			tree_free(&arvore);
+			arvore = tree_new();
+			argv++;
+			continue;
+			/*printf("\n*** New tree ***\n");*/
+		}
 		sscanf(*argv++, "%d", &i);
 		tree_insert(&arvore, i);
 	}
 	tree_to_latex(arvore);
 	tree_free(&arvore);
-
+	end();
 	return EXIT_SUCCESS;
 }
