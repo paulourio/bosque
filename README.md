@@ -41,6 +41,10 @@ After installed the application will have a program called `desenhar`.
 You can type it with the desired tree in preorder. For instance:
 
 	$ desenhar 5 3 1 4 6
+	
+Specifying the output file:
+
+	$ desenhar -o out.svg 5 3 1 4 6
 
 ### More than one tree
 
@@ -71,6 +75,6 @@ Ruby
 Also, you can use `tee` to get your application output before 
 redirect to `desenhar`:
 
-	$ ./binary_tree | tee | xargs desenhar
+	$ ./binary_tree | tee | xargs desenhar -o output.svg
 	
 
