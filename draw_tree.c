@@ -10,10 +10,6 @@
 #include <stdlib.h>
 #include "tree.h"
 
-#define	o(...)	printf(__VA_ARGS__)
-
-int	first = 1, pilha = 0;
-
 int main(int argc, char *argv[])
 {
 	void	*arvore;
