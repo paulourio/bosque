@@ -80,7 +80,7 @@ fi
 $RM $FILEPDFCROP
 $OPEN $FINAL
 
-echo "Arquivo: $FINAL"
+echo "$FINAL"
 
 cd ..
 #rm $FINAL
