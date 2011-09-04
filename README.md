@@ -1,7 +1,9 @@
 Drawing Binary Search Tree
 ==========================
 
-This program has intent to draw a binary search tree using latex.
+This program has intent to draw a binary search tree using LaTeX. The 
+application receives an tree in preorder format and draw this
+tree with LaTeX resulting in a SVG file.
 
 Dependencies
 ------------
