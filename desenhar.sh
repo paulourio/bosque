@@ -2,7 +2,7 @@
 
 function usage
 {
-    echo "usage: desenhar [-o outputfile] [tree values]"
+    echo "usage: desenhar [-o outputfile] [tree values in preorder]"
     echo "eg: desenhar 5 3 1 4 6"
 }
 
