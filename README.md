@@ -2,8 +2,8 @@ Drawing Binary Search Tree
 ==========================
 
 This program has intent to draw a binary search tree using LaTeX. The 
-application receives an tree in preorder format and draw this
-tree with LaTeX resulting in a SVG file.
+application receives a tree in preorder format as parameter and draw this
+tree with LaTeX resulting in a SVG image file.
 
 Dependencies
 ------------
@@ -14,8 +14,8 @@ If you are using Ubuntu Linux you will need this following packages:
 * [texlive-extra-utils](http://packages.ubuntu.com/search?keywords=texlive-extra-utils) -- `apt-get install texlive-extra-utils`
 * [pdf2svg](http://packages.ubuntu.com/search?keywords=pdf2svg) -- `apt-get install pdf2svg`
 
-Otherwise you have to install the latex base `texlive-base` and the 
-`tikzpicture` package installed and `pdf2svg`.
+Otherwise you have to install the latex base `texlive-base`, the 
+`tikzpicture` package and `pdf2svg`.
 
 Installing
 ----------
