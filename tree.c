@@ -246,12 +246,14 @@ static void tree_latex_walk(void *ptree, int first)
 
 
 /* Walk the tree in three orders */
-void tree_to_latex(void *ptree)
+void tree_to_latex(void *ptree, int distance)
 {
 	printf("\\centering\n");
 	printf("\\begin{tikzpicture}");
 	
-	printf("[level/.style={sibling distance=42mm/#1}]\n");
+	if (distance == 0)
+		distance = 42;
+	printf("[level/.style={sibling distance=%dmm/#1}]\n", distance);
 	printf("\\tikzstyle{every node}=[circle,draw]\n");
 	tree_latex_walk(ptree, 1);
 	printf(";\\end{tikzpicture}\n");

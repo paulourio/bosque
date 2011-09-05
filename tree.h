@@ -36,7 +36,7 @@ void tree_insert(void **ptree, const int value) __nonnull ((1));
 void tree_delete(void **ptree, const int value) __nonnull ((1));
 void tree_walk(void *ptree, register const fbst_print cblk,
 		register const enum TREE_WALKORDER worder);
-void tree_to_latex(void *ptree);		
+void tree_to_latex(void *ptree, int distance);		
 int tree_min_value(void *ptree);
 int tree_max_value(void *ptree);
 int tree_successor_value(void *ptree, const int value);
