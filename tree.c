@@ -14,6 +14,7 @@ struct bstree {
 	void    *lchild;
 	void    *rchild;
 	int 	value;
+	float	sibling_distance;
 };
 
 
@@ -228,33 +229,55 @@ void tree_walk(void *ptree, register const fbst_print cblk,
 }
 
 
+#define	max(a,b)	(a > b?	a: b)
+static int tree_calculate_distances(struct bstree *node) {
+	if (node == NULL)
+		return 0;
+	if (node->lchild == NULL && node->rchild == NULL)
+		return 0;
+	int left = tree_calculate_distances(node->lchild);
+	int right = tree_calculate_distances(node->rchild);
+	node->sibling_distance = (max(left, right) + 7) * 1.7;
+	return node->sibling_distance;
+}
+
+
 static void tree_latex_walk(void *ptree, int first)
 {
-	if (ptree != NULL) {
-		struct bstree	*node = ptree;
-		
-		if (first)
-			printf("\\node {%d}\n", node->value);
-		else
-			printf("child { node {%d} ", node->value);
-		tree_latex_walk(node->lchild, 0);
-		tree_latex_walk(node->rchild, 0);
-		if (!first)
-			printf("}\n");
+	if (ptree == NULL)
+		return;
+	struct bstree	*node = ptree;
+	
+	if (first) {
+		printf("\\node {%d}\n", node->value);
+	} else {
+		printf("child {[anchor=north,sibling distance=%fmm]\n", 
+			node->sibling_distance);
+		printf("node {%d} ", node->value);
 	}
+	tree_latex_walk(node->lchild, 0);
+	if (node->lchild == NULL)
+		printf(" child [missing] ");
+	tree_latex_walk(node->rchild, 0);
+	if (node->rchild == NULL)
+		printf(" child [missing] ");
+	if (!first)
+		printf("}\n");
 }
 
 
 /* Walk the tree in three orders */
-void tree_to_latex(void *ptree, int distance)
+void tree_to_latex(void *ptree)
 {
+	tree_calculate_distances(ptree);
 	printf("\\centering\n");
 	printf("\\begin{tikzpicture}");
 	
-	if (distance == 0)
-		distance = 42;
-	printf("[level/.style={sibling distance=%dmm/#1}]\n", distance);
-	printf("\\tikzstyle{every node}=[circle,draw]\n");
+	if (ptree != NULL) {
+		printf("[every node/.style={circle,draw}, ");
+		printf("sibling distance=%fmm]\n", 
+			((struct bstree *) ptree)->sibling_distance);
+	}
 	tree_latex_walk(ptree, 1);
 	printf(";\\end{tikzpicture}\n");
 }
