@@ -1,8 +1,8 @@
-Drawing Binary Search Tree
-==========================
+Bosque
+======
 
-This program has intent to draw a binary search tree using LaTeX. The 
-application receives a tree in preorder format as parameter and draw this
+This program has intent to draw binary search trees using LaTeX. The 
+application receives one or more trees in preorder format as parameter and draw this
 tree with LaTeX resulting in a SVG image file.
 
 Dependencies
@@ -75,6 +75,7 @@ Ruby
 Also, you can use `tee` to get your application output before 
 redirect to `desenhar`:
 
-	$ ./binary_tree | tee | xargs desenhar -o output.svg
+	$ ./my_avl_tree | tee | xargs desenhar -o output.svg
 	
 
+This example also showed how define the output file to the trees.
