@@ -128,7 +128,7 @@ fi
 $RM $FILEPDFCROP
 
 echo "$FINAL"
-$OPEN $FINAL
+$OPEN $FINAL &
 
 if [ $CUSTOM -eq 0 ]; then
     cd ..
