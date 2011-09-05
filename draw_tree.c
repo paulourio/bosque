@@ -12,9 +12,10 @@
 
 static void header(void)
 {
-	printf("\\documentclass[a4paper,landscape]{scrartcl}\n");
+	printf("\\documentclass[]{minimal}\n");
 	printf("\\usepackage{fancybox}\n");
 	printf("\\usepackage{tikz}\n");
+	printf("\\usepackage[paperwidth=50in, paperheight=80in]{geometry}\n");
 	printf("\\thispagestyle{empty}\n");
 	printf("\\begin{document}\n");
 }
