@@ -5,6 +5,8 @@
  * San Francisco, California, 94105, USA.
  *
  * Author: Paulo Roberto Urio (August 2011)
+ *
+ * This is a binary search tree optimazed to conversion to latex.
  */
 #include <stdlib.h>
 #include "tree.h"
@@ -25,7 +27,8 @@ static struct bstree *tree_new_node(const int value)
 
 	bst = malloc(sizeof(struct bstree));
 	if (bst == NULL) {
-		debug("Can't allocate memory to node of value '%d'\n", value);
+		err("Error: Can't allocate memory to node of value '%d'\n", 
+			value);
 		return NULL;
 	}
 	bst->parent = NULL;
@@ -33,64 +36,6 @@ static struct bstree *tree_new_node(const int value)
 	bst->rchild = NULL;
 	bst->value = value;
 	return bst;
-}
-
-
-/* Search a value in the tree and returns its node */
-static struct bstree *tree_search(struct bstree *ptree, const int valor)
-{
-	while (ptree != NULL && valor != ptree->value)
-		if (valor < ptree->value)
-			ptree = ptree->lchild;
-		else
-			ptree = ptree->rchild;
-	return ptree;
-}
-
-
-/* Returns the minimum value node in the tree */
-static struct bstree *tree_min(struct bstree *ptree)
-{
-	if (ptree != NULL && ptree->lchild)
-		return tree_min(ptree->lchild);
-	else
-		return ptree;
-}
-
-
-/* Returns the maximum value node in the tree */
-static struct bstree *tree_max(struct bstree *ptree)
-{
-	if (ptree != NULL && ptree->rchild)
-		return tree_max(ptree->rchild);
-	else
-		return ptree;
-}
-
-
-/* Finds the successor node */
-static struct bstree *tree_successor(struct bstree *bst)
-{
-	struct bstree   *pai = bst->parent;
-
-	if (bst->rchild != NULL)
-		return tree_min(bst->rchild);
-	while (pai != NULL && bst == pai->rchild)
-		pai = (bst = pai)->parent;
-	return pai;
-}
-
-
-/* Finds the predecessor node */
-static struct bstree *tree_predecessor(struct bstree *bst)
-{
-	struct bstree   *pai = bst->parent;
-
-	if (bst->lchild != NULL)
-		return tree_max(bst->lchild);
-	while (pai != NULL && bst == pai->lchild)
-		pai = (bst = pai)->parent;
-	return pai;
 }
 
 
@@ -124,6 +69,8 @@ void tree_insert(void **ptree, const int value)
 
 	while (bst != NULL) {
 		prev = bst;
+		if (value == bst->value)
+			err("Warning: Inserting a duplicated value.\n");
 		bst = (value < bst->value)?  bst->lchild:  bst->rchild;
 	}
 	node->parent = prev;
@@ -136,99 +83,6 @@ void tree_insert(void **ptree, const int value)
 }
 
 
-/*
- * If the node has only one child, this child will be child of the
- * parent node, else will be found the successor node of node. 
- * Returns which node will be removed.
- */
-static struct bstree *tree_which_node(struct bstree *node)
-{
-	if (node->lchild == NULL || node->rchild == NULL)
-		return node;
-	else
-		return tree_successor(node);
-}
-
-
-/* Select which node switch with node. */
-static struct bstree *tree_which_son_node(struct bstree *node)
-{
-	return node->lchild != NULL?  node->lchild:  node->rchild;
-}
-
-
-/*
- * Updates the connection of parent with new child.
- * If the node to be removed is the root, update the tree's root.
- * Else will be updated the son, depending whether the node to be removed
- * is on left or right of parent node.
- */
-static void tree_update_father_node(void **ptree, struct bstree *node,
-					struct bstree *new_son)
-{
-	struct bstree	*pai = node->parent;
-
-	if (node->parent == NULL)
-		*ptree = new_son;
-	else if (node == pai->lchild)
-		pai->lchild = new_son;
-	else
-		pai->rchild = new_son;
-}
-
-
-/*
- * Delete a tree's node
- * Finds the y node to be removed and its x child that will be the new
- * child of y's parent.  There's a case that y node isn't the node within
- * value to be removed.  In this case, y node is a leaf and its value
- * should be switched with the real node to be removed.
- */
-void tree_delete(void **ptree, const int value)
-{
-	struct bstree   *node, *y, *x;
-
-	if (*ptree == NULL) {
-		debug("Empty tree.\n");
-		return;
-	}
-	node = tree_search(*ptree, value);
-	if (node == NULL) {
-		debug("Node '%d' was not found.\n", value);
-		return;
-	}
-	y = tree_which_node(node);
-	x = tree_which_son_node(y);
-	tree_update_father_node(ptree, y, x);
-	if (y != node)
-		node->value = y->value;
-	free(y);
-}
-
-
-/* Walk the tree in three orders */
-void tree_walk(void *ptree, register const fbst_print cblk,
-		register const enum TREE_WALKORDER worder)
-{
-	if (ptree != NULL) {
-		struct bstree	*node = ptree;
-
-		if (worder == WALK_PREORDER)
-			cblk(node->value);
-			
-		tree_walk(node->lchild, cblk, worder);
-		
-		if (worder == WALK_INORDER)
-			cblk(node->value);
-			
-		tree_walk(node->rchild, cblk, worder);
-		
-		if (worder == WALK_POSORDER)
-			cblk(node->value);
-	}
-}
-
-
 #define	max(a,b)	(a > b?	a: b)
 static int tree_calculate_distances(struct bstree *node) {
 	if (node == NULL)
@@ -237,7 +91,7 @@ static int tree_calculate_distances(struct bstree *node) {
 		return 0;
 	int left = tree_calculate_distances(node->lchild);
 	int right = tree_calculate_distances(node->rchild);
-	node->sibling_distance = (max(left, right) + 7) * 1.7;
+	node->sibling_distance = (max(left, right) + 7) * 1.65;
 	return node->sibling_distance;
 }
 
@@ -280,44 +134,4 @@ void tree_to_latex(void *ptree)
 	}
 	tree_latex_walk(ptree, 1);
 	printf(";\\end{tikzpicture}\n");
-}
-
-
-/* Returns the minimum value in the tree */
-int tree_min_value(void *ptree)
-{
-	return ptree != NULL?  tree_min(ptree)->value:  NOT_FOUND;
-}
-
-
-/* Returns the maximum value in the tree */
-int tree_max_value(void *ptree)
-{
-	return ptree != NULL?  tree_max(ptree)->value:  NOT_FOUND;
-}
-
-
-/* Returns the successor value in the tree */
-int tree_successor_value(void *ptree, const int value)
-{
-	struct bstree   *no, *succ;
-
-	if (ptree == NULL)
-		return NOT_FOUND;
-	no = tree_search(ptree, value);
-	succ = tree_successor(no);
-	return succ != NULL?  succ->value:  NOT_FOUND;
-}
-
-
-/* Returns the predecessor value in the tree */
-int tree_predecessor_value(void *ptree, const int value)
-{
-	struct bstree   *no, *pred;
-
-	if (ptree == NULL)
-		return NOT_FOUND;
-	no = tree_search(ptree, value);
-	pred = tree_predecessor(no);
-	return pred != NULL?  pred->value:  NOT_FOUND;
 }
