@@ -80,9 +80,10 @@ static void finish_tree(void)
 
 static void insert_next_value(void)
 {
+	int i;
+
 	if (opt.huffman) {
 		char s[100];
-		int i;
 		//puts("from input");
 		if (scanf("%d %s", &i, s) == 2) {
 			if (s[0] == '.') {
@@ -93,8 +94,7 @@ static void insert_next_value(void)
 			}
 		}
 	} else {
-		int i;
-		sscanf(*opt.argv++, "%d", &i);
+		sscanf(*opt.argv, "%d", &i);
 		tree_insert(&opt.arvore, i);
 	}
 }

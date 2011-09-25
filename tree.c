@@ -31,13 +31,14 @@ static struct bstree *tree_new_node(const int value)
 	if (bst == NULL) {
 		err("Error: Can't allocate memory to node of value '%d'\n", 
 			value);
-		return NULL;
+		exit(1);
 	}
 	bst->parent = NULL;
 	bst->lchild = NULL;
 	bst->rchild = NULL;
 	bst->value = value;
 	bst->meta = NULL;
+	bst->sibling_distance = 0.0;
 	return bst;
 }
 
@@ -52,11 +53,10 @@ void *tree_new(void)
 /* Free all tree nodes */
 void tree_free(void **ptr)
 {
-	struct bstree	*tree;
+	struct bstree	*tree = *ptr;
 
-	if (*ptr == NULL)
+	if (tree == NULL)
 		return;
-	tree = *ptr;
 	tree_free(&tree->lchild);
 	tree_free(&tree->rchild);
 	if (tree->meta != NULL)
@@ -74,7 +74,7 @@ static struct bstree *tree_insert_node(void **ptree, const int value)
 	while (bst != NULL) {
 		prev = bst;
 		if (value == bst->value)
-			err("Warning: Inserting a duplicated value %d.\n", value);
+			err("Warning: Inserting duplicated value %d.\n", value);
 		bst = (value < bst->value)?  bst->lchild:  bst->rchild;
 	}
 	node->parent = prev;
@@ -128,11 +128,10 @@ static int tree_calculate_distances(struct bstree *node) {
 }
 
 
-static void tree_latex_walk(void *ptree, int first)
+static void tree_latex_walk(struct bstree *node, int first)
 {
-	if (ptree == NULL)
+	if (node == NULL)
 		return;
-	struct bstree	*node = ptree;
 	
 	if (first) {
 		if (node->meta != NULL) 
@@ -165,15 +164,16 @@ static void tree_latex_walk(void *ptree, int first)
 /* Walk the tree in three orders */
 void tree_to_latex(void *ptree)
 {
-	tree_calculate_distances(ptree);
+	struct bstree *tree = ptree;
+	
+	tree_calculate_distances(tree);
 	printf("\\centering\n");
 	printf("\\begin{tikzpicture}");
 	
-	if (ptree != NULL) {
+	if (tree != NULL) {
 		printf("[every node/.style={circle,draw}, ");
-		printf("sibling distance=%fmm]\n", 
-			((struct bstree *) ptree)->sibling_distance);
+		printf("sibling distance=%fmm]\n", tree->sibling_distance);
 	}
-	tree_latex_walk(ptree, 1);
+	tree_latex_walk(tree, 1);
 	printf(";\\end{tikzpicture}\n");
 }
