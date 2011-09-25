@@ -94,7 +94,7 @@ if [ ! -f $DRAW ]; then
 	exit 1
 fi
 
-$DRAW $trees > $FILE.tex
+cat - | $DRAW $trees > $FILE.tex
 if [ $? -ne 0 ]; then
 	echo "Error while trying to create the tree"
 	exit 1

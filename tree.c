@@ -9,6 +9,7 @@
  * This is a binary search tree optimazed to conversion to latex.
  */
 #include <stdlib.h>
+#include <string.h>
 #include "tree.h"
 
 struct bstree {
@@ -16,6 +17,7 @@ struct bstree {
 	void    *lchild;
 	void    *rchild;
 	int 	value;
+	char	*meta; /* Used for Huffman's code, for instance. */
 	float	sibling_distance;
 };
 
@@ -35,6 +37,7 @@ static struct bstree *tree_new_node(const int value)
 	bst->lchild = NULL;
 	bst->rchild = NULL;
 	bst->value = value;
+	bst->meta = NULL;
 	return bst;
 }
 
@@ -56,13 +59,14 @@ void tree_free(void **ptr)
 	tree = *ptr;
 	tree_free(&tree->lchild);
 	tree_free(&tree->rchild);
+	if (tree->meta != NULL)
+		free(tree->meta);
 	free(*ptr);
 	*ptr = NULL;
 }
 
 
-/* Insert a value in the tree */
-void tree_insert(void **ptree, const int value)
+static struct bstree *tree_insert_node(void **ptree, const int value)
 {
 	struct bstree   *prev = NULL, *bst = *ptree,
 			*node = tree_new_node(value);
@@ -70,7 +74,7 @@ void tree_insert(void **ptree, const int value)
 	while (bst != NULL) {
 		prev = bst;
 		if (value == bst->value)
-			err("Warning: Inserting a duplicated value.\n");
+			err("Warning: Inserting a duplicated value %d.\n", value);
 		bst = (value < bst->value)?  bst->lchild:  bst->rchild;
 	}
 	node->parent = prev;
@@ -80,6 +84,30 @@ void tree_insert(void **ptree, const int value)
 		prev->lchild = node;
 	else
 		prev->rchild = node;
+	return node;
+}
+
+/* Insert a value in the tree */
+void tree_insert(void **ptree, const int value)
+{
+	(void) tree_insert_node(ptree, value);
+}
+
+/* Insert an extended value in the tree */
+void tree_insert_ex(void **ptree, const int value, const char *meta)
+{
+	char *copy = malloc(sizeof(char) * strlen(meta));
+	
+	tree_insert_node(ptree, value)->meta = strcpy(copy, meta);
+}
+
+/* Forced method to set childs. */
+void tree_set_childs(void *node, void *left, void *right)
+{
+	struct bstree *parent = node;
+
+	parent->lchild = left;
+	parent->rchild = right;
 }
 
 
@@ -103,11 +131,21 @@ static void tree_latex_walk(void *ptree, int first)
 	struct bstree	*node = ptree;
 	
 	if (first) {
-		printf("\\node {%d}\n", node->value);
+		if (node->meta != NULL) 
+			printf("\\node {%s}\n", node->meta);
+		else
+			printf("\\node {%d}\n", node->value);
 	} else {
 		printf("child {[anchor=north,sibling distance=%fmm]\n", 
 			node->sibling_distance);
-		printf("node {%d} ", node->value);
+		if (node->meta != NULL) {
+			if (node->meta[0] == '/')
+				printf("node {%s} ", node->meta);
+			else
+				printf("node [rectangle] {%s} ", node->meta);
+		} else {
+			printf("node {%d} ", node->value);
+		}
 	}
 	tree_latex_walk(node->lchild, 0);
 	if (node->lchild == NULL)

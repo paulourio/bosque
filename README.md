@@ -54,6 +54,30 @@ a dot at start of it.
 
 	$ desenhar 15 5 3 12 10 6 7 13 16 20 18 23 . 15 6 3 12 10 7 13 16 20 18 23
 	
+### Huffman
+
+Bosque is starting to support huffman coding trees.  It is slightly different
+from the default method.  To draw a huffman coding tree you should pass the
+option `--huffman` to `desenhar`.  This will make Bosque read the tree from
+the standard input (the terminal, for instance).  The format to draw a huffman
+coding tree is, for each node a integer value indicating the position in
+the binary tree and the string of node.  A node that is a extension of other
+should start with character '/', and a node that has space, use '~' instead.
+For instance, if you want a tree to compress `banana` word, you will pass
+to `desenhar` something like this:
+
+	4 /:6
+	2 /:3
+	1 b:1
+	3 n:2
+	5 a:3
+
+Drawing the `banana` tree:
+
+	echo "4 /:6 2 /:3 1 b:1 3 n:2 5 a:3" | desenhar --huffman
+	
+See the wiki to see how this tree will look like!
+	
 ### Integrating
 
 Using bash you can set up your exercise or testing application to
