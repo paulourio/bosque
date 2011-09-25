@@ -14,6 +14,8 @@ FILEPDFCROP=$FILE-crop.pdf
 FINAL=$FILE.$ext
 CUSTOM=0
 
+HUFFMAN=0
+
 trees=""
 
 while [ "$1" != "" ]; do
@@ -29,6 +31,10 @@ while [ "$1" != "" ]; do
         -h | --help )   usage
                         exit
                         ;;
+        --huffman )	
+        		HUFFMAN=1
+        		trees="$trees $1"
+        		;;
         * )             trees="$trees $1"
                         ;;
     esac
@@ -94,7 +100,12 @@ if [ ! -f $DRAW ]; then
 	exit 1
 fi
 
-cat - | $DRAW $trees > $FILE.tex
+if [ $HUFFMAN -ne 0 ]; then
+	cat - | $DRAW $trees > $FILE.tex
+else
+	$DRAW $trees > $FILE.tex
+fi
+
 if [ $? -ne 0 ]; then
 	echo "Error while trying to create the tree"
 	exit 1

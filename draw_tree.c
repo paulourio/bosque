@@ -6,14 +6,15 @@
  *
  * Author: Paulo Roberto Urio (September 2011)
  */
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "tree.h"
 
 struct options {
 	int huffman;
 	int redblack;
+	int stdin; /* If is in normal mode and wants to use stdin anyway */
 	char **argv;
 	int argc;
 	void *arvore;
@@ -58,9 +59,15 @@ static void show_help(void)
 static void process_option(const char *option)
 {
 	/* Should be a option */
+	if (strcmp(option, "-") == 0) {
+		/* Read from standard input */
+		opt.stdin = 1;
+		return;
+	}
 	if (strcmp(option, "--huffman") == 0) {
 		//puts("Huffman coding selected.");
 		opt.huffman = 1;
+		opt.stdin = 1;
 		return;
 	}
 	if (strcmp(option, "--help") == 0) {
@@ -78,46 +85,53 @@ static void finish_tree(void)
 	opt.arvore = tree_new();
 }
 
-static void insert_next_value(void)
+static int insert_next_value(void)
 {
 	int i;
 
 	if (opt.huffman) {
 		char s[100];
-		//puts("from input");
 		if (scanf("%d %s", &i, s) == 2) {
-			if (s[0] == '.') {
+			if (s[0] == '.')
 				finish_tree();
-			} else {
-				//printf("insert %d %s\n",i , s);
+			else
 				tree_insert_ex(&opt.arvore, i, s);
-			}
 		}
+		if (feof(stdin))
+			return 0;
 	} else {
-		sscanf(*opt.argv, "%d", &i);
-		tree_insert(&opt.arvore, i);
+		int ret;
+		if (opt.stdin) {
+			ret = scanf("%d", &i);
+		} else
+			ret = sscanf(*opt.argv++, "%d", &i);
+		if (ret == 1)
+			tree_insert(&opt.arvore, i);
+		else
+			return 0;
 	}
+	return 1;
 }
 
 static void start_reading(void)
 {
 	opt.arvore = tree_new();
-	while (opt.argc--) {
-		if (*opt.argv[0] == '-') {
-			opt.argv++;
-			continue;
-		}
-		if (*opt.argv[0] == '.') {
-			finish_tree();
-			opt.argv++;
-			continue;
-		}
-		if (!opt.huffman)
+	if (opt.stdin == 0) {
+		while (opt.argc--) {
+			if (*opt.argv[0] == '-') {
+				opt.argv++;
+				continue;
+			}
+			if (*opt.argv[0] == '.') {
+				finish_tree();
+				opt.argv++;
+				continue;
+			}
 			insert_next_value();		
-	}
-	if (opt.huffman) {
-		while (!feof(stdin))
-			insert_next_value();
+		}
+	} else {
+		while (insert_next_value())
+			; /* VOID */
 	}
 	tree_to_latex(opt.arvore);
 	tree_free(&opt.arvore);
@@ -134,6 +148,7 @@ int main(int argc, char *argv[])
 	opt.argc = argc;
 	opt.huffman = 0;
 	opt.redblack = 0;
+	opt.stdin = 0;
 
 	while (argc--) {
 		if (*argv[0] == '-')
