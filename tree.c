@@ -96,8 +96,12 @@ void tree_insert(void **ptree, const int value)
 /* Insert an extended value in the tree */
 void tree_insert_ex(void **ptree, const int value, const char *meta)
 {
-	char *copy = malloc(sizeof(char) * strlen(meta));
+	char *copy = malloc(sizeof(char) * (strlen(meta) + 1));
 	
+	if (copy == NULL) {
+		fprintf(stderr, "Can't allocate memory to meta string.\n");
+		exit(1);
+	}
 	tree_insert_node(ptree, value)->meta = strcpy(copy, meta);
 }
 
