@@ -151,7 +151,7 @@ static void node_check_red_node(struct bstree *node)
 
 static char *node_color_to_str(struct bstree *node)
 {
-	char *str = malloc(20 * sizeof(char));
+	char *str = malloc(40 * sizeof(char));
 	
 	if (str == NULL) {
 		fprintf(stderr, "Can't allocate memory for color string.\n");
@@ -163,11 +163,11 @@ static char *node_color_to_str(struct bstree *node)
 		strcpy(str, "[fill=");
 		switch (node->color) {
 		case BLACK:
-			strcat(str, "black!30");
+			strcat(str, "black!100, font=\\color{white}");
 			break;
 		case RED:
 			node_check_red_node(node);
-			strcat(str, "red!40");
+			strcat(str, "red!60");
 			break;
 		default:
 		case UNKNOWN:
