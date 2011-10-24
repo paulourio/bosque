@@ -17,10 +17,10 @@ struct bstree {
 	void    *lchild;
 	void    *rchild;
 	int 	value;
+	int	color;
 	char	*meta; /* Used for Huffman's code, for instance. */
 	float	sibling_distance;
 };
-
 
 /* Allocate memory for a new node */
 static struct bstree *tree_new_node(const int value)
@@ -37,6 +37,7 @@ static struct bstree *tree_new_node(const int value)
 	bst->lchild = NULL;
 	bst->rchild = NULL;
 	bst->value = value;
+	bst->color = WHITE;
 	bst->meta = NULL;
 	bst->sibling_distance = 0.0;
 	return bst;
@@ -99,10 +100,16 @@ void tree_insert_ex(void **ptree, const int value, const char *meta)
 	char *copy = malloc(sizeof(char) * (strlen(meta) + 1));
 	
 	if (copy == NULL) {
-		fprintf(stderr, "Can't allocate memory to meta string.\n");
+		fprintf(stderr, "Can't allocate memory for meta string.\n");
 		exit(1);
 	}
 	tree_insert_node(ptree, value)->meta = strcpy(copy, meta);
+}
+
+/* Insert an colored node in the tree */
+void tree_insert_colored(void **ptree, const int value, const int color)
+{
+	tree_insert_node(ptree, value)->color = color;
 }
 
 /* Forced method to set childs. */
@@ -128,6 +135,61 @@ static int tree_calculate_distances(struct bstree *node) {
 }
 
 
+/* Verify for possible problems in the tree, and print warnings. */
+static void node_check_red_node(struct bstree *node)
+{
+	struct bstree *parent = node->parent;
+	
+	if (parent == NULL)
+		fprintf(stderr,	"Warning: The tree's root should be "
+			"a black node.\n");
+	else if (parent->color == RED)
+		fprintf(stderr, "Warning: Red nodes should only have black "
+			"childs. (node %d).\n", node->value);
+}
+
+
+static char *node_color_to_str(struct bstree *node)
+{
+	char *str = malloc(20 * sizeof(char));
+	
+	if (str == NULL) {
+		fprintf(stderr, "Can't allocate memory for color string.\n");
+		exit(1);
+	}
+	if (node->color == WHITE) {
+		strcpy(str, " ");
+	} else {
+		strcpy(str, "[fill=");
+		switch (node->color) {
+		case BLACK:
+			strcat(str, "black!30");
+			break;
+		case RED:
+			node_check_red_node(node);
+			strcat(str, "red!40");
+			break;
+		default:
+		case UNKNOWN:
+			fprintf(stderr, "Warning: Unknown color for node "
+				"\"%d\". I'm only accepting \"BLACK\" "
+				"and \"RED\" values.\n", node->value);
+			strcat(str, "yellow!50");
+			break;
+		}
+		strcat(str, "] ");
+	}
+	return str;
+}
+
+static void tree_latex_print_node(struct bstree *node)
+{
+	char *color = node_color_to_str(node);
+	
+	fprintf(stdout, "node%s{%d}", color, node->value);
+	free(color);
+}
+
 static void tree_latex_walk(struct bstree *node, int first)
 {
 	if (node == NULL)
@@ -136,8 +198,11 @@ static void tree_latex_walk(struct bstree *node, int first)
 	if (first) {
 		if (node->meta != NULL) 
 			printf("\\node {%s}\n", node->meta);
-		else
-			printf("\\node {%d}\n", node->value);
+		else {
+			printf("\\");
+			tree_latex_print_node(node);
+			printf("\n");
+		}
 	} else {
 		printf("child {[anchor=north,sibling distance=%fmm]\n", 
 			node->sibling_distance);
@@ -147,7 +212,7 @@ static void tree_latex_walk(struct bstree *node, int first)
 			else
 				printf("node [rectangle] {%s} ", node->meta);
 		} else {
-			printf("node {%d} ", node->value);
+			tree_latex_print_node(node);
 		}
 	}
 	tree_latex_walk(node->lchild, 0);

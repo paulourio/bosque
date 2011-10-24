@@ -70,6 +70,11 @@ static void process_option(const char *option)
 		opt.stdin = 1;
 		return;
 	}
+	if (strcmp(option, "--redblack") == 0) {
+		opt.redblack = 1;
+		opt.stdin = 1;
+		return;
+	}
 	if (strcmp(option, "--help") == 0) {
 		show_help();
 		exit(0);
@@ -85,6 +90,16 @@ static void finish_tree(void)
 	opt.arvore = tree_new();
 }
 
+static int indetify_node_color(const char *value)
+{
+	#define check(s)	(strcmp(value, s) == 0)
+	if (check("red") || check("RED") || check("1"))
+		return RED;
+	if (check("black") || check("BLACK") || check("0"))
+		return BLACK;
+	return UNKNOWN;
+}
+
 static int insert_next_value(void)
 {
 	int i;
@@ -96,6 +111,18 @@ static int insert_next_value(void)
 				finish_tree();
 			else
 				tree_insert_ex(&opt.arvore, i, s);
+		}
+		if (feof(stdin))
+			return 0;
+	} else if (opt.redblack) {
+		char s[100];
+		if (scanf("%d %s", &i, s) == 2) {
+			if (s[0] == '.')
+				finish_tree();
+			else {
+				int c = indetify_node_color(s);
+				tree_insert_colored(&opt.arvore, i, c);
+			}
 		}
 		if (feof(stdin))
 			return 0;

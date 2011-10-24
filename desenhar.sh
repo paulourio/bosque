@@ -14,7 +14,7 @@ FILEPDFCROP=$FILE-crop.pdf
 FINAL=$FILE.$ext
 CUSTOM=0
 
-HUFFMAN=0
+STANDARDINPUT=0
 
 trees=""
 
@@ -31,8 +31,12 @@ while [ "$1" != "" ]; do
         -h | --help )   usage
                         exit
                         ;;
-        --huffman )	
-        		HUFFMAN=1
+        --huffman )
+        		STANDARDINPUT=1
+        		trees="$trees $1"
+        		;;
+        --redblack )
+        		STANDARDINPUT=1
         		trees="$trees $1"
         		;;
         * )             trees="$trees $1"
@@ -96,11 +100,11 @@ fi
 
 DRAW=`which drawbstree`
 if [ ! -f $DRAW ]; then
-	echo "File drawbstree not found. Did you compile?"
+	echo "File drawbstree not found. Did you compile Bosque?"
 	exit 1
 fi
 
-if [ $HUFFMAN -ne 0 ]; then
+if [ $STANDARDINPUT -ne 0 ]; then
 	cat - | $DRAW $trees > $FILE.tex
 else
 	$DRAW $trees > $FILE.tex
@@ -139,7 +143,7 @@ fi
 $RM $FILEPDFCROP
 
 echo "$FINAL"
-$OPEN $FINAL &
+$OPEN $FINAL 1,2> /dev/null &
 
 if [ $CUSTOM -eq 0 ]; then
     cd ..
