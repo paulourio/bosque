@@ -103,26 +103,30 @@ static int indetify_node_color(const char *value)
 static int insert_next_value(void)
 {
 	int i;
-
+	
+	if (opt.stdin) {
+		int c = ' ';
+		
+		while ((c = getc(stdin)) == ' ')
+			; /* VOID */
+	
+		if ((char) c == '.')
+			finish_tree();
+		else
+			ungetc(c, stdin);
+	}
+	
 	if (opt.huffman) {
 		char s[100];
-		if (scanf("%d %s", &i, s) == 2) {
-			if (s[0] == '.')
-				finish_tree();
-			else
-				tree_insert_ex(&opt.arvore, i, s);
-		}
+		if (scanf("%d %s", &i, s) == 2)
+			tree_insert_ex(&opt.arvore, i, s);
 		if (feof(stdin))
 			return 0;
 	} else if (opt.redblack) {
 		char s[100];
 		if (scanf("%d %s", &i, s) == 2) {
-			if (s[0] == '.')
-				finish_tree();
-			else {
-				int c = indetify_node_color(s);
-				tree_insert_colored(&opt.arvore, i, c);
-			}
+			int c = indetify_node_color(s);
+			tree_insert_colored(&opt.arvore, i, c);
 		}
 		if (feof(stdin))
 			return 0;
