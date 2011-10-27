@@ -12,6 +12,9 @@
 #include <string.h>
 #include "tree.h"
 
+static float distance_factor = 1.65;
+static float distance_max = 100;
+
 struct bstree {
 	void    *parent;
 	void    *lchild;
@@ -22,6 +25,27 @@ struct bstree {
 	float	sibling_distance;
 };
 
+
+void tree_set_distance_factor(float value)
+{
+	distance_factor = value;
+}
+
+float tree_get_factor(void)
+{
+	return distance_factor;
+}
+
+void tree_set_distance_max(float value)
+{
+	distance_max = value;
+}
+
+float tree_get_max_distance(void)
+{
+	return distance_max;
+}
+
 /* Allocate memory for a new node */
 static struct bstree *tree_new_node(const int value)
 {
@@ -29,7 +53,7 @@ static struct bstree *tree_new_node(const int value)
 
 	bst = malloc(sizeof(struct bstree));
 	if (bst == NULL) {
-		err("Error: Can't allocate memory to node of value '%d'\n", 
+		err("Error: Can't allocate memory to node of value '%d'\n",
 			value);
 		exit(1);
 	}
@@ -98,7 +122,7 @@ void tree_insert(void **ptree, const int value)
 void tree_insert_ex(void **ptree, const int value, const char *meta)
 {
 	char *copy = malloc(sizeof(char) * (strlen(meta) + 1));
-	
+
 	if (copy == NULL) {
 		fprintf(stderr, "Can't allocate memory for meta string.\n");
 		exit(1);
@@ -130,7 +154,9 @@ static int tree_calculate_distances(struct bstree *node) {
 		return 0;
 	int left = tree_calculate_distances(node->lchild);
 	int right = tree_calculate_distances(node->rchild);
-	node->sibling_distance = (max(left, right) + 7) * 1.65;
+	node->sibling_distance = (max(left, right) + 7) * distance_factor;
+	if (node->sibling_distance > distance_max)
+		node->sibling_distance = distance_max;
 	return node->sibling_distance;
 }
 
@@ -139,7 +165,7 @@ static int tree_calculate_distances(struct bstree *node) {
 static void node_check_red_node(struct bstree *node)
 {
 	struct bstree *parent = node->parent;
-	
+
 	if (parent == NULL)
 		fprintf(stderr,	"Warning: The tree's root should be "
 			"a black node.\n");
@@ -152,7 +178,7 @@ static void node_check_red_node(struct bstree *node)
 static char *node_color_to_str(struct bstree *node)
 {
 	char *str = malloc(40 * sizeof(char));
-	
+
 	if (str == NULL) {
 		fprintf(stderr, "Can't allocate memory for color string.\n");
 		exit(1);
@@ -185,7 +211,7 @@ static char *node_color_to_str(struct bstree *node)
 static void tree_latex_print_node(struct bstree *node)
 {
 	char *color = node_color_to_str(node);
-	
+
 	fprintf(stdout, "node%s{%d}", color, node->value);
 	free(color);
 }
@@ -194,9 +220,9 @@ static void tree_latex_walk(struct bstree *node, int first)
 {
 	if (node == NULL)
 		return;
-	
+
 	if (first) {
-		if (node->meta != NULL) 
+		if (node->meta != NULL)
 			printf("\\node {%s}\n", node->meta);
 		else {
 			printf("\\");
@@ -204,7 +230,7 @@ static void tree_latex_walk(struct bstree *node, int first)
 			printf("\n");
 		}
 	} else {
-		printf("child {[anchor=north,sibling distance=%fmm]\n", 
+		printf("child {[anchor=north,sibling distance=%fmm]\n",
 			node->sibling_distance);
 		if (node->meta != NULL) {
 			if (node->meta[0] == '/')
@@ -230,11 +256,11 @@ static void tree_latex_walk(struct bstree *node, int first)
 void tree_to_latex(void *ptree)
 {
 	struct bstree *tree = ptree;
-	
+
 	tree_calculate_distances(tree);
 	printf("\\centering\n");
 	printf("\\begin{tikzpicture}");
-	
+
 	if (tree != NULL) {
 		printf("[every node/.style={circle,draw}, ");
 		printf("sibling distance=%fmm]\n", tree->sibling_distance);

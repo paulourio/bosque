@@ -17,6 +17,7 @@ struct options {
 	int stdin; /* If is in normal mode and wants to use stdin anyway */
 	char **argv;
 	int argc;
+	int arg_curr;
 	void *arvore;
 } opt;
 
@@ -45,16 +46,58 @@ static void show_help(void)
 	puts("separated by space, in preorder.  To draw more");
 	puts("than one tree, separate each tree with a dot.");
 	puts("Example: desenhar 4 3 2 1 6 5 7 . 2 3 1 .\n");
-	puts("Controle de entrada:");
+	puts("Format options:");
+	puts("  -                Read values from standard input.");
+	puts("                   This option is recommended for everyone,");
+	puts("                   because it has less bugs.  Reading trees");
+	puts("                   from argument line can be painful.");
 	puts("  --huffman        Tell to the program to draw a tree");
 	puts("                   used in the huffman's code algorithm.");
 	puts("                   The tree will be read from the standard");
 	puts("                   input and any additional data passed");
 	puts("                   as program option will be ignored.");
+	puts("                   Format: <id> <value>");
+	puts("                   Eg: 4 /:6 2 /:3 1 b:1 3 n:2 5 a:3");
+	puts("  --redblack       Tell to the program to draw a redblack tree.");
+	puts("                   The format is similar to the huffman format,");
+	puts("                   you have to define the node id and its color.");
+	puts("                   Format: <id> <color>");
+	puts("                   Eg: 5 black 2 red 7 black");
+	puts("                   Acceptable colors (case sensitive):");
+	puts("                   For a black node: 0 black BLACK;");
+	puts("                   For a red node:   1 red RED.");
+	puts("Drawing options:");
+	puts("  --factor 0.0     Set the float value to be used to calculate");
+	puts("                   the siblings distance.");
+	printf("                   Default value: %f.\n", tree_get_factor());
+	puts("                   Eg: --factor 3.2");
+	puts("  --max-distance 0 Set the float value to be used to limit");
+	puts("                   the siblings distance.");
+	printf("                   Default value: %f.\n", tree_get_max_distance());
+	puts("                   Eg: --max-distance 50.0");
+	puts("Other options:");
 	puts("  --help           Show this message.\n");
-	puts("Report bugs to: paulo@archlinux.us");
+	puts("Report bugs to: paulourio@gmail.com");
+	exit(0);
 }
 
+static void arg_error(void)
+{
+	fprintf(stderr, "Argument error: you must define correct parameters."
+		" Please, use option --help to get program help.\n");
+	exit(1);
+}
+
+static float args_read_float(void)
+{
+	float factor = 0.0;
+
+	if (opt.argc == opt.arg_curr - 1)
+		arg_error();
+	if (sscanf(opt.argv[opt.arg_curr], "%f", &factor) != 1)
+		arg_error();
+	return factor;
+}
 
 static void process_option(const char *option)
 {
@@ -75,10 +118,20 @@ static void process_option(const char *option)
 		opt.stdin = 1;
 		return;
 	}
+	if (strcmp(option, "--factor") == 0) {
+		/* Bug on: if reading trees from argument line */
+		tree_set_distance_factor(args_read_float());
+		return;
+	}
+	if (strcmp(option, "--max-distance") == 0) {
+		/* Bug on: if reading trees from argument line */
+		tree_set_distance_max(args_read_float());
+		return;
+	}
 	if (strcmp(option, "--help") == 0) {
 		show_help();
 		exit(0);
-	}	
+	}
 	fprintf(stderr, "I don't understand the option %s\n", option);
 }
 
@@ -103,19 +156,19 @@ static int indetify_node_color(const char *value)
 static int insert_next_value(void)
 {
 	int i;
-	
+
 	if (opt.stdin) {
 		int c = ' ';
-		
+
 		while ((c = getc(stdin)) == ' ')
 			; /* VOID */
-	
+
 		if ((char) c == '.')
 			finish_tree();
 		else
 			ungetc(c, stdin);
 	}
-	
+
 	if (opt.huffman) {
 		char s[100];
 		if (scanf("%d %s", &i, s) == 2)
@@ -158,7 +211,7 @@ static void start_reading(void)
 				opt.argv++;
 				continue;
 			}
-			insert_next_value();		
+			insert_next_value();
 		}
 	} else {
 		while (insert_next_value())
@@ -166,26 +219,28 @@ static void start_reading(void)
 	}
 	tree_to_latex(opt.arvore);
 	tree_free(&opt.arvore);
-	end();	
+	end();
 }
 
 
 int main(int argc, char *argv[])
 {
-	argv++;	
+	argv++;
 	argc--;
-	header();
 	opt.argv = argv;
 	opt.argc = argc;
+	opt.arg_curr = 0;
 	opt.huffman = 0;
 	opt.redblack = 0;
 	opt.stdin = 0;
 
 	while (argc--) {
+		opt.arg_curr++;
 		if (*argv[0] == '-')
 			process_option(*argv);
-		argv++;	
+		argv++;
 	}
+	header();
 	start_reading();
 	return EXIT_SUCCESS;
 }

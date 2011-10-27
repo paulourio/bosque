@@ -32,7 +32,11 @@ extern void tree_free(void **ptr) __nonnull ((1));
 extern void tree_insert(void **ptree, const int value) __nonnull ((1));
 extern void tree_insert_ex(void **ptree, const int value, const char *meta);
 extern void tree_insert_colored(void **ptree, const int value, const int color);
-extern void tree_to_latex(void *ptree);	
+extern void tree_to_latex(void *ptree);
 extern void tree_set_childs(void *node, void *left, void *right);
+extern void tree_set_distance_factor(float value);
+extern void tree_set_distance_max(float value);
+extern float tree_get_factor(void);
+extern float tree_get_max_distance(void);
 
 #endif

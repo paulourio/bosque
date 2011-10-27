@@ -14,6 +14,8 @@ FILEPDFCROP=$FILE-crop.pdf
 FINAL=$FILE.$ext
 CUSTOM=0
 
+HELP=0
+
 STANDARDINPUT=0
 
 trees=""
@@ -28,9 +30,10 @@ while [ "$1" != "" ]; do
                             exit 1
                         fi
                         ;;
-        -h | --help )   usage
-                        exit
-                        ;;
+        --help )
+			HELP=1
+			trees="$trees --help"
+			;;
         --huffman )
         		STANDARDINPUT=1
         		trees="$trees $1"
@@ -39,6 +42,22 @@ while [ "$1" != "" ]; do
         		STANDARDINPUT=1
         		trees="$trees $1"
         		;;
+        --factor )      shift
+			FACTOR="$1"
+                        if [ "$FACTOR" = "" ]; then
+                            echo "You must define an float value."
+                            exit 1
+                        fi
+			trees="$trees --factor $FACTOR"
+			;;
+        --max-distance ) shift
+			MAXDIST="$1"
+                        if [ "$MAXDIST" = "" ]; then
+                            echo "You must define an float value."
+                            exit 1
+                        fi
+			trees="$trees --max-distance $MAXDIST"
+			;;
         * )             trees="$trees $1"
                         ;;
     esac
@@ -102,6 +121,11 @@ DRAW=`which drawbstree`
 if [ ! -f $DRAW ]; then
 	echo "File drawbstree not found. Did you compile Bosque?"
 	exit 1
+fi
+
+if [ $HELP -eq 1 ]; then
+	$DRAW $trees
+	exit 0
 fi
 
 if [ $STANDARDINPUT -ne 0 ]; then
