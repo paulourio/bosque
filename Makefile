@@ -23,3 +23,5 @@ clean:
 install: all
 	$(INSTALL) desenhar.sh /usr/local/bin/desenhar
 	$(INSTALL) drawbstree /usr/local/bin/
+	mkdir -p /usr/share/bosque
+	$(INSTALL) bosquescalefactor.xsl /usr/share/bosque/bigger.xsl

@@ -11,6 +11,7 @@ DIR=`pwd`
 DIR=$DIR/arvores
 FILE=$DIR/bstree-$RANDOM
 FILEPDFCROP=$FILE-crop.pdf
+PREFINAL=$FILE-aux.$ext
 FINAL=$FILE.$ext
 CUSTOM=0
 
@@ -81,6 +82,7 @@ else
 fi
 
 RM=`which rm`
+CP=`which cp`
 
 if [ "$trees" = "" ]; then
 	usage
@@ -157,13 +159,22 @@ fi
 
 $RM $FILE.pdf
 
-$PDF2SVG $FILEPDFCROP $FINAL
+$PDF2SVG $FILEPDFCROP $PREFINAL
 if [ $? -ne 0 ]; then
 	echo "Failed to convert image to SVG"
   	$RM $FILEPDFCROP
 	exit 1
 fi
 
+XSLTPROC=`which xsltproc`
+
+if [ $? -eq 0 ]; then
+	$XSLTPROC --stringparam scale 3 /usr/share/bosque/bigger.xsl $PREFINAL > $FINAL  
+else
+	$CP $PREFINAL $FINAL
+fi
+
+$RM $PREFINAL
 $RM $FILEPDFCROP
 
 echo "$FINAL"
